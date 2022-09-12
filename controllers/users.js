@@ -1,6 +1,8 @@
 const express =require("express")
 const router = express.Router()
 const db= require("../models")
+const crypto = require("crypto-js")
+const bcrypt= require("bcrypt")
 
 // GET /users/new -> renders form to create a new user
 router.get("/new", (req, res)=>{
@@ -15,12 +17,30 @@ router.post("/", async (req, res)=>{
     // res.send('create a new user in db')
     try{
          // create a new user
-         const newUser = await db.user.create(req.body)
-        // store as cookie in browser
-        res.cookie("userId", newUser.id)
+         // hash the supplied password from the req.body
+         const hashedPassword = bcrypt.hashSync(req.body.password, 12)
+        //  create new user
+         const [newUser, created]  = await db.user.findOrCreate({
+            where:{
+                email: req.body.email,
+            },
+           defaults:{
+            password: hashedPassword
+        }
+         })
+// if user found send to log in form
+         if(!created){
+            console.log("user exists already")
+            res.redirect("/users/login?message=Please log into your account to continue")
+         }else{
+          // store as cookie in browser
+        const encryptedUserId = crypto.AES.encrypt(newUser.id.toString(), process.env.ENC_SECRET)
+        const encryptedUserIdString = encryptedUserId.toString()
+        res.cookie("userId", encryptedUserIdString)
         // redirect to the home page
         res.redirect("/users/profile")
         // res.redirect("/")
+         }
     }catch(err){
         console.log(err)
         res.send("server error")
@@ -54,13 +74,16 @@ router.post("/login", async (req, res)=>{
             console.log ("user not found")
             res.redirect ("/users/login?message=" + noLoginMessage)
             // if found but entered wrong password send back to login from
-        } else if ( user.password !== req.body.password){
+        } else if  (!bcrypt.compareSync(req.body.password, user.password)){
             console.log ("wrong password")
             res.redirect ("/users/login?message=" + noLoginMessage)
         } else {
              // if user found & pw match what is stored in dbthen log in user
+        
          console.log("log in the user")
-         res.cookie("userId", user.id)
+         const encryptedUserId = crypto.AES.encrypt(user.id.toString(), process.env.ENC_SECRET)
+         const encryptedUserIdString = encryptedUserId.toString()
+         res.cookie("userId", encryptedUserIdString)
          res.redirect("/users/profile")
         }
 

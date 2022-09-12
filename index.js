@@ -4,6 +4,7 @@ const express = require("express")
 const ejsLayouts = require("express-ejs-layouts")
 const cookieParser = require("cookie-parser")
 const db = require("./models")
+const crypto = require("crypto-js")
 
 // config express/app middlewares
 const app = express()
@@ -18,8 +19,11 @@ app.use(async (req, res, next) =>{
     // console.log("hello from mw 🐸")
     // if there is a cookie on incoming req
     if(req.cookies.userId){
+        // decyrpt user id before we look up user id
+        const decyrptedId = crypto.AES.decrypt(req.cookies.userId.toString(), process.env.ENC_SECRET)
+        const decyrptedIdString= decyrptedId.toString(crypto.enc.Utf8)
         // look up userin db
-        const user = await db.user.findByPk(req.cookies.userId)
+        const user = await db.user.findByPk(decyrptedIdString)
         // mount user on res.local
         res.locals.user = user
     }else{
