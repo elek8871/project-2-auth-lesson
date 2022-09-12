@@ -19,7 +19,7 @@ app.use(async (req, res, next) =>{
     // if there is a cookie on incoming req
     if(req.cookies.userId){
         // look up userin db
-        const user = await db.user.findbyPk(req.cookies.userId)
+        const user = await db.user.findByPk(req.cookies.userId)
         // mount user on res.local
         res.locals.user = user
     }else{
@@ -33,7 +33,7 @@ app.use(async (req, res, next) =>{
 // routes
 app.get ("/", (req, res)=>{
     res.render("home.ejs")
-    console.log("incoming cookie 🍪", req.cookies)
+    console.log("the currently logged in user is:, res.locals.user")
 })
 
 // controllers

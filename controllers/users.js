@@ -6,6 +6,7 @@ const db= require("../models")
 router.get("/new", (req, res)=>{
     // res.send('show a new user form')
     res.render("users/new.ejs")
+  
 })
 
 // POST /users -> create a new user in the db
@@ -18,7 +19,8 @@ router.post("/", async (req, res)=>{
         // store as cookie in browser
         res.cookie("userId", newUser.id)
         // redirect to the home page
-        res.redirect("/")
+        res.redirect("/users/profile")
+        // res.redirect("/")
     }catch(err){
         console.log(err)
         res.send("server error")
@@ -52,19 +54,19 @@ router.post("/login", async (req, res)=>{
             console.log ("user not found")
             res.redirect ("/users/login?message=" + noLoginMessage)
             // if found but entered wrong password send back to login from
-        } else if ( user.password !== req.body){
+        } else if ( user.password !== req.body.password){
             console.log ("wrong password")
             res.redirect ("/users/login?message=" + noLoginMessage)
         } else {
              // if user found & pw match what is stored in dbthen log in user
          console.log("log in the user")
          res.cookie("userId", user.id)
-         res.redirect("/")
+         res.redirect("/users/profile")
         }
 
-    }catch(err){
-        console.log(err)
-        res.send('server error')
+        }catch(err){
+            console.log(err)
+            res.send('server error')
     }
 })
 // GET/users/logout -> log out a user by clearing stored cookie
@@ -74,6 +76,20 @@ router.get("/logout", (req, res)=>{
     res.clearCookie("userId")
     // redirect to home page
     res.redirect("/")
+})
+
+router.get("/profile", (req, res)=>{
+    // if user not logged in: redirect to login
+    if (!res.locals.user){
+        res.redirect("/users/login?message= You must authenticate before you are authorized to view this log in form")
+    } else {
+          // otherwise show them their profile
+        res.render("users/profile.ejs", {
+            user: res.locals.user
+        })
+    }
+  
+  
 })
 
 
