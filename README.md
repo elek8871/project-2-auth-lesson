@@ -8,7 +8,7 @@ Authorization is a separate process, and it can only happen after authentication
 
 Today we will only be implementing authentication, but it's important to know that these are two separate processes.
 
-## Part 0: Scaffolding the app
+## Part A: Scaffolding the app
 
 Set up a new node/express app for your project 2
 
@@ -19,7 +19,7 @@ Set up a new node/express app for your project 2
 * install express, ejs, express-ejs-layouts, and dotenv.
 * Set up your express route to successfully render a home view
 
-## Part 0.5 Get your database ready
+## Part B Get your database ready
 
 * Install pg and sequelize
 * Initialize sequelize
