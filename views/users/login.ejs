@@ -1,5 +1,9 @@
-<!-- copied from new  -->
 
+<% if (message) { %>
+   <p><%= message %></p> 
+<%}%>
+
+<!-- copied from new  -->
 <form action="/users/login" method="POST">
     <label for="email"> Email </label>
     <input id ="email" type="email" name="email" required>
